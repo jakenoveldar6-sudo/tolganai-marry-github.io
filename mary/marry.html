@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Свадебное приглашение</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Roboto:wght@400;500&display=swap');
+body { font-family: 'Roboto', sans-serif; margin:0; padding:0; background: linear-gradient(135deg,#fff0f5,#ffe4e1); color:#333; scroll-behavior:smooth; overflow-x:hidden; position:relative; }
+header { text-align:center; padding:100px 20px 60px; font-family: 'Great Vibes', cursive; }
+header h1 { font-size:5em; margin:0; color:#ff1493; text-shadow:2px 2px 15px rgba(255,182,193,0.5); }
+header p { font-size:2em; margin-top:20px; color:#ff69b4; line-height:1.5; max-width:900px; margin-left:auto; margin-right:auto; font-family:'Great Vibes', cursive; }
+
+section { padding:50px 20px; max-width:900px; margin:40px auto; background: rgba(255,255,255,0.95); border-radius:20px; box-shadow:0 8px 30px rgba(0,0,0,0.1); opacity:0; transform:translateY(50px); transition:all 0.8s ease; background-image: repeating-linear-gradient(45deg, rgba(255,192,203,0.05) 0, rgba(255,192,203,0.05) 2px, transparent 2px, transparent 20px); }
+section.visible { opacity:1; transform:translateY(0); }
+section h2 { text-align:center; margin-bottom:25px; color:#ff69b4; font-family:'Great Vibes', cursive; font-size:3em; }
+
+#details p { font-family: 'Great Vibes', cursive; font-size:1.8em; color:#ff1493; line-height:1.5; text-align:center; }
+#gallery { position:relative; }
+#gallery .photos { display:flex; gap:15px; flex-wrap:wrap; justify-content:center; }
+#gallery .photos img { width:250px; height:150px; object-fit:cover; border-radius:15px; cursor:pointer; transition:0.3s; box-shadow:0 6px 20px rgba(0,0,0,0.25); }
+#gallery .photos img:hover { transform:scale(1.1); box-shadow:0 12px 30px rgba(0,0,0,0.3); }
+
+/* Танцующая пара поверх фоток */
+.dance-overlay {
+  position:absolute;
+  top:-50px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:10;
+}
+.dance-pair {
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  gap:20px;
+}
+.man, .woman {
+  width:50px;
+  height:100px;
+  border-radius:10px;
+  animation: dance 2s infinite alternate ease-in-out;
+}
+.man { background: gray; }
+.woman { background: pink; }
+@keyframes dance {
+  0% { transform: rotate(-10deg) translateY(0); }
+  50% { transform: rotate(10deg) translateY(-10px); }
+  100% { transform: rotate(-10deg) translateY(0); }
+}
+
+.modal { display:none; position:fixed; z-index:2000; padding-top:60px; left:0; top:0; width:100%; height:100%; overflow:auto; background: rgba(0,0,0,0.85); }
+.modal-content { margin:auto; display:block; max-width:90%; max-height:80%; border-radius:15px; }
+.close { position:absolute; top:20px; right:35px; color:#fff; font-size:40px; font-weight:bold; cursor:pointer; }
+
+form { display:flex; flex-direction:column; gap:12px; max-width:500px; margin:0 auto; }
+input, textarea { padding:12px; border:1px solid #ccc; border-radius:12px; font-size:1em; }
+button { padding:12px; background: linear-gradient(45deg,#ff69b4,#ff1493); border:none; border-radius:12px; color:white; font-size:1.2em; cursor:pointer; transition:0.3s; }
+button:hover { background:linear-gradient(45deg,#ff1493,#ff69b4); transform:scale(1.05); }
+
+footer { text-align:center; padding:30px; background: rgba(255,228,225,0.9); border-top:2px solid #ff69b4; font-weight:500; }
+
+#musicControl { position: fixed; bottom:20px; left:20px; z-index:1000; padding:10px 15px; background:#ff69b4; color:#fff; border:none; border-radius:10px; cursor:pointer; font-size:1em; display:none; }
+#startMusicBtn { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); color:#fff; font-size:2em; display:flex; justify-content:center; align-items:center; cursor:pointer; z-index:2000; flex-direction:column; }
+#startMusicBtn span { font-size:1.2em; margin-top:20px; }
+
+@media(max-width:600px){ #gallery .photos img{width:90%;height:auto;} header h1{font-size:3em;} header p{font-size:1.4em;} section h2{font-size:2.2em;} }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Толганай & Чен</h1>
+  <p>Дорогие гости! Мы очень рады пригласить вас на наш праздник любви и счастья.  
+     Приходите отметить этот особенный день с нами! Мы будем счастливы видеть каждого из вас.</p>
+</header>
+
+<section id="details">
+  <h2>Детали свадьбы</h2>
+  <p><strong>Дата:</strong> <span id="weddingDate">19 января 2026</span></p>
+  <p><strong>Место:</strong> <span id="weddingPlace">Ресторан "Гаухартас"</span></p>
+  <p><strong>Время:</strong> <span id="weddingTime">18:00</span></p>
+  <p>Мы подготовили для вас уютную атмосферу, вкусные блюда и много сюрпризов.  
+     Будем рады каждому гостю!</p>
+</section>
+
+<section id="countdown">
+  <h2>До свадьбы осталось:</h2>
+  <p id="timer" style="text-align:center; font-size:2em; color:#ff1493; font-family:'Great Vibes', cursive;">Загрузка...</p>
+  <p style="text-align:center; font-size:1.2em; color:#ff69b4;">Скоро мы все соберёмся вместе, чтобы отпраздновать этот счастливый день!</p>
+</section>
+
+<section id="gallery">
+  <h2>Галерея</h2>
+  <p style="text-align:center; font-size:1.2em; color:#ff69b4;">
+    Посмотрите фотографии наших подготовок и моменты, которые мы хотим разделить с вами.
+  </p>
+
+  <!-- Танцующая пара поверх фоток -->
+  <div class="dance-overlay">
+    <div class="dance-pair">
+      <div class="man"></div>
+      <div class="woman"></div>
+    </div>
+  </div>
+
+  <div class="photos" id="photoContainer"></div>
+</section>
+
+<section id="rsvp">
+  <h2>Подтвердить присутствие</h2>
+  <p style="text-align:center; font-size:1.2em; color:#ff69b4;">Пожалуйста, подтвердите своё присутствие, чтобы мы могли всё тщательно подготовить для каждого гостя.</p>
+  <form id="rsvpForm">
+    <input type="text" name="name" placeholder="Ваше имя" required>
+    <input type="email" name="email" placeholder="E-mail" required>
+    <textarea name="message" placeholder="Сообщение"></textarea>
+    <button type="submit">Отправить</button>
+  </form>
+  <p id="rsvpMessage" style="text-align:center;color:green; font-size:1.1em; margin-top:10px;"></p>
+</section>
+
+<section id="map">
+  <h2>Место свадьбы</h2>
+  <p style="text-align:center; font-size:1.2em; color:#ff69b4;">Ресторан "Гаухартас" удобно расположен, и мы с нетерпением ждём всех наших гостей!</p>
+  <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d40028.473826875896!2d71.3126524486328!3d51.16785230000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4245874363090217%3A0x58cf37dcc7f3cb0c!2z0JPQsNGD0YXQsNGA0YLQsNGB!5e0!3m2!1sru!2skz!4v1758372527851!5m2!1sru!2skz" width="900" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+</section>
+
+<button id="musicControl">Пауза</button>
+<audio id="bgMusic" loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<div id="startMusicBtn">
+  Включить музыку
+  <span>(нажмите anywhere для запуска)</span>
+</div>
+
+<footer>© 2025 Толганай & Чен. Все права защищены.</footer>
+
+<div id="myModal" class="modal">
+  <span class="close">&times;</span>
+  <img class="modal-content" id="imgModal">
+</div>
+
+<div id="adminPanel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.98); z-index:3000; overflow:auto; padding:40px;">
+  <h2>Админ-панель</h2>
+  <p>Изменяйте имена, текст, детали свадьбы и галерею.</p>
+  <div>
+    <label>Имена:</label><input id="editNames"><br><br>
+    <label>Приветствие:</label><textarea id="editText" rows="3" style="width:100%;"></textarea><br><br>
+    <label>Дата:</label><input id="editDate"><br>
+    <label>Место:</label><input id="editPlace"><br>
+    <label>Время:</label><input id="editTime"><br><br>
+    <label>Новая фотография (URL):</label><input id="newPhoto"><button id="addPhoto">Добавить</button><br><br>
+    <button id="saveHeader">Сохранить заголовок</button>
+    <button id="saveDetails">Сохранить детали</button>
+    <button id="closeAdmin">Закрыть</button>
+  </div>
+</div>
+
+<script>
+// ---------------- Таймер ----------------
+function startTimer(){
+  const timerElement = document.getElementById('timer');
+  const weddingDate = new Date("January 19, 2026 18:00:00").getTime();
+  function updateTimer(){
+    const now = new Date().getTime();
+    const distance = weddingDate - now;
+    if(distance < 0){ timerElement.innerHTML = "Свадьба уже состоялась!"; clearInterval(timerInterval); return; }
+    const days = Math.floor(distance / (1000*60*60*24));
+    const hours = Math.floor((distance % (1000*60*60*24)) / (1000*60*60));
+    const minutes = Math.floor((distance % (1000*60*60)) / (1000*60));
+    const seconds = Math.floor((distance % (1000*60)) / 1000);
+    timerElement.innerHTML = `${days} дн ${hours} ч ${minutes} мин ${seconds} сек`;
+  }
+  updateTimer();
+  const timerInterval = setInterval(updateTimer, 1000);
+}
+document.addEventListener("DOMContentLoaded", startTimer);
+
+// ---------------- Галерея ----------------
+let photos = ["https://i.pinimg.com/736x/51/d9/35/51d93537466062fac514851ec069868e.jpg","images/obnimaet.png","images/obni.png"];
+function renderGallery(){
+  const container = document.getElementById('photoContainer');
+  container.innerHTML = '';
+  photos.forEach(url=>{
+    const img = document.createElement('img');
+    img.src = url;
+    img.onclick = ()=>{ document.getElementById('imgModal').src=url; document.getElementById('myModal').style.display='block'; };
+    container.appendChild(img);
+  });
+}
+renderGallery();
+document.querySelector('.close').onclick = ()=>{ document.getElementById('myModal').style.display='none'; };
+
+// ---------------- RSVP ----------------
+document.getElementById('rsvpForm').onsubmit = function(e){
+  e.preventDefault();
+  document.getElementById('rsvpMessage').textContent = "Спасибо! Ваше присутствие подтверждено.";
+  e.target.reset();
+}
+
+// ---------------- Админ-панель с паролем ----------------
+const adminBtn=document.createElement('a');
+adminBtn.href="#";
+adminBtn.textContent="Админ";
+adminBtn.style.position='fixed';
+adminBtn.style.top='10px';
+adminBtn.style.right='10px';
+adminBtn.style.background='#ff69b4';
+adminBtn.style.color='#fff';
+adminBtn.style.padding='8px 12px';
+adminBtn.style.borderRadius='8px';
+adminBtn.style.zIndex='1000';
+document.body.appendChild(adminBtn);
+
+const adminPanel=document.getElementById('adminPanel');
+const closeAdmin=document.getElementById('closeAdmin');
+adminBtn.onclick = () => {
+  const password = prompt("Введите пароль для доступа к админ-панели:");
+  if(password === "1234"){ adminPanel.style.display='block'; } else { alert("Неверный пароль!"); }
+}
+closeAdmin.onclick=()=>{ adminPanel.style.display='none'; }
+
+document.getElementById('saveHeader').onclick=()=>{
+  document.querySelector('header h1').textContent=document.getElementById('editNames').value;
+  document.querySelector('header p').textContent=document.getElementById('editText').value;
+}
+document.getElementById('saveDetails').onclick=()=>{
+  document.getElementById('weddingDate').textContent=document.getElementById('editDate').value;
+  document.getElementById('weddingPlace').textContent=document.getElementById('editPlace').value;
+  document.getElementById('weddingTime').textContent=document.getElementById('editTime').value;
+}
+document.getElementById('addPhoto').onclick=()=>{
+  const url=document.getElementById('newPhoto').value;
+  if(url){ photos.push(url); renderGallery(); document.getElementById('newPhoto').value=''; }
+}
+
+// ---------------- Фоновая музыка ----------------
+const bgMusic = document.getElementById('bgMusic');
+const musicControl = document.getElementById('musicControl');
+const startMusicBtn = document.getElementById('startMusicBtn');
+
+startMusicBtn.addEventListener('click', ()=>{
+    bgMusic.play().then(()=>{ 
+        startMusicBtn.style.display='none';
+        musicControl.style.display='block';
+        musicControl.textContent='Пауза';
+    }).catch(()=>{});
+});
+
+musicControl.addEventListener('click', ()=>{
+    if(bgMusic.paused){
+        bgMusic.play().then(()=>{ musicControl.textContent='Пауза'; });
+    } else {
+        bgMusic.pause();
+        musicControl.textContent='Воспроизвести';
+    }
+});
+
+// ---------------- Сердечки ----------------
+for(let i=0;i<20;i++){
+  let heart = document.createElement('div');
+  heart.className='heart';
+  heart.style.position='absolute';
+  heart.style.top='0';
+  heart.style.left=Math.random()*100+'vw';
+  heart.style.fontSize=20+Math.random()*30+'px';
+  heart.style.color='#ff69b4';
+  heart.style.animation=`fall ${5+Math.random()*5}s linear infinite`;
+  heart.innerHTML='❤';
+  document.body.appendChild(heart);
+}
+
+const styleEl = document.createElement('style');
+styleEl.innerHTML=`@keyframes fall {0%{transform:translateY(0) rotate(0deg);opacity:0;}10%{opacity:1;}100%{transform:translateY(110vh) rotate(360deg);opacity:0;}}`;
+document.head.appendChild(styleEl);
+
+// ---------------- Появление секций ----------------
+const sections=document.querySelectorAll('section');
+window.addEventListener('scroll', ()=>{
+  sections.forEach(s=>{
+    if(s.getBoundingClientRect().top < window.innerHeight - 100) s.classList.add('visible');
+  });
+});
+</script>
+
+</body>
+</html>
+ 
